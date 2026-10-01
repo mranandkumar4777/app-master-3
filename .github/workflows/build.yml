@@ -1,4 +1,4 @@
-name: Build Desktop and Mobile Apps
+name: Build All Platforms
 
 on:
   push:
@@ -6,7 +6,12 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
     - name: Check out repository
@@ -17,7 +22,7 @@ jobs:
       with:
         node-version: 18
 
-    - name: Install Desktop App Dependencies & Build
+    - name: Install Dependencies & Build
       run: |
         npm install
         npm run dist
@@ -25,5 +30,11 @@ jobs:
     - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Presenter-Windows-App
-        path: dist/
+        name: presenter-app-${{ matrix.os }}
+        path: |
+          dist/*.exe
+          dist/*.dmg
+          dist/*.AppImage
+          dist/*.zip
+          dist/win-unpacked/
+          dist/linux-unpacked/
